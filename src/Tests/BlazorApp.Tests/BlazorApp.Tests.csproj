@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+	<PackageReference Include="xunit" Version="2.8.1" />
+	<PackageReference Include="xunit.runner.visualstudio" Version="2.5.9">
+	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  <PrivateAssets>all</PrivateAssets>
+	</PackageReference>
+	<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<ProjectReference Include="..\..\Application\BlazorApp.Application\BlazorApp.Application.csproj" />
+	<ProjectReference Include="..\..\Domain\BlazorApp.Domain\BlazorApp.Domain.csproj" />
+	<ProjectReference Include="..\..\Infrastructure\BlazorApp.Infrastructure\BlazorApp.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

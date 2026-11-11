@@ -1,0 +1,17 @@
+<Project>
+  <!-- Common build properties for all projects in the solution -->
+
+  <PropertyGroup>
+	<!-- Code Analysis & Language Features -->
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<LangVersion>latest</LangVersion>
+
+	<!-- Deterministic Builds -->
+	<Deterministic>true</Deterministic>
+
+	<!-- Documentation -->
+	<GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+</Project>
