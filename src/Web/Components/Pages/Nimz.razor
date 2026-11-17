@@ -1,0 +1,324 @@
+﻿@page "/nimz"
+@rendermode InteractiveServer
+@using BlazorApp.Web.Data
+@using MongoDB.Driver
+@using BlazorApp.Web.Components.Shared
+@inject ApplicationDbContext DbContext
+
+<PageTitle>Nimz - NIMS Data</PageTitle>
+
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h2 mb-1">
+                <span class="bi bi-shield-check me-2 text-primary" aria-hidden="true"></span>NIMS Incident Data
+            </h1>
+            <p class="text-muted mb-0">
+                Pulling National Incident Management System (NIMS) data directly from MongoDB collection <code>NIMS</code>.
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary" @onclick="LoadDataAsync" disabled="@isLoading">
+                <span class="bi bi-arrow-clockwise me-1" aria-hidden="true"></span>Refresh
+            </button>
+            <button class="btn btn-success" @onclick="SeedExampleDataAsync" disabled="@isLoading">
+                <span class="bi bi-database-add me-1" aria-hidden="true"></span>Insert Example Record
+            </button>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(actionMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@actionMessage
+            <button type="button" class="btn-close" @onclick="() => actionMessage = null" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-start">
+                <i class="bi bi-exclamation-triangle-fill fs-5 me-2 text-warning"></i>
+                <div class="flex-grow-1">
+                    <strong>MongoDB Notice:</strong> @errorMessage
+                    <div class="small mt-1 text-muted">
+                        Check your MongoDB connection in <code>appsettings.json</code>. You can click <strong>Refresh</strong> once connected.
+                    </div>
+                </div>
+                <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+
+    @if (isLoading)
+    {
+        <div class="card p-5 text-center shadow-sm">
+            <div class="spinner-border text-primary mx-auto mb-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h5>Loading NIMS records from MongoDB...</h5>
+            <p class="text-muted mb-0">Connecting to database and querying collection <code>NIMS</code>.</p>
+        </div>
+    }
+    else if (nimsRecords == null || nimsRecords.Count == 0)
+    {
+        <div class="card p-5 text-center shadow-sm">
+            <div class="mb-3">
+                <i class="bi bi-inbox text-muted display-4"></i>
+            </div>
+            <h4>No NIMS records found</h4>
+            <p class="text-muted">The MongoDB collection <code>NIMS</code> is currently empty or could not be loaded.</p>
+            <div class="mt-2">
+                <button class="btn btn-primary" @onclick="SeedExampleDataAsync">
+                    <i class="bi bi-plus-circle me-1"></i>Insert Example NIMS Record (Code 1151 - Escort)
+                </button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Summary Stats Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm bg-light">
+                    <div class="card-body py-2 px-3">
+                        <small class="text-muted text-uppercase fw-semibold">Total Records</small>
+                        <div class="h4 mb-0 fw-bold">@nimsRecords.Count</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm bg-light">
+                    <div class="card-body py-2 px-3">
+                        <small class="text-muted text-uppercase fw-semibold">Active</small>
+                        <div class="h4 mb-0 fw-bold text-success">@nimsRecords.Count(r => r.IsActive)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm bg-light">
+                    <div class="card-body py-2 px-3">
+                        <small class="text-muted text-uppercase fw-semibold">Inactive</small>
+                        <div class="h4 mb-0 fw-bold text-secondary">@nimsRecords.Count(r => !r.IsActive)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm bg-light">
+                    <div class="card-body py-2 px-3">
+                        <small class="text-muted text-uppercase fw-semibold">Filtered Matches</small>
+                        <div class="h4 mb-0 fw-bold text-primary">@FilteredRecords.Count()</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter and Search Bar -->
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body py-2">
+                <div class="row g-2 align-items-center">
+                    <div class="col-12 col-md-7">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="bi bi-search text-muted"></i>
+                            </span>
+                            <input type="text"
+                                   class="form-control border-start-0"
+                                   placeholder="Search by Code, Description, Priority, or ID..."
+                                   @bind="searchTerm"
+                                   @bind:event="oninput" />
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <select class="form-select" @bind="statusFilter">
+                            <option value="all">All Statuses</option>
+                            <option value="active">Active Only</option>
+                            <option value="inactive">Inactive Only</option>
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-2 text-end">
+                        @if (!string.IsNullOrWhiteSpace(searchTerm) || statusFilter != "all")
+                        {
+                            <button class="btn btn-outline-secondary w-100" @onclick="ResetFilters">
+                                <i class="bi bi-x-circle me-1"></i>Clear
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination (visible when records exist) -->
+        <Pagination TotalItems="FilteredRecords.Count()"
+                    PageSize="PageSize"
+                    CurrentPage="CurrentPage"
+                    OnPageChanged="OnPageChanged" />
+
+        <!-- Records Table -->
+        <div class="card border-0 shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" style="width: 100px;">Code</th>
+                            <th scope="col">Description</th>
+                            <th scope="col" style="width: 100px;">Priority</th>
+                            <th scope="col" style="width: 100px;">Status</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Branch</th>
+                            <th scope="col">Created Date</th>
+                            <th scope="col" class="text-end" style="width: 110px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var record in PagedRecords)
+                        {
+                            var isSelected = selectedRecord?._id == record._id;
+                            <tr class="@(isSelected ? "table-active" : "")">
+                                <td><span class="badge bg-primary fs-6 font-monospace">@record.Code</span></td>
+                                <td>
+                                    <strong>@record.Description</strong>
+                                    <div class="small text-muted font-monospace text-truncate" style="max-width: 220px;" title="@record._id">ID: @record._id</div>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(record.Priority))
+                                    {
+                                        <span class="badge bg-warning text-dark">Priority @record.Priority</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (record.IsActive)
+                                    {
+                                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary"><i class="bi bi-x-circle me-1"></i>Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (record.NIMSCategorys != null)
+                                    {
+                                        <span class="small font-monospace" title="@record.NIMSCategorys._id">@TruncateId(record.NIMSCategorys._id)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (record.NIMSTypes != null)
+                                    {
+                                        <span class="small font-monospace" title="@record.NIMSTypes._id">@TruncateId(record.NIMSTypes._id)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (record.Branchs != null)
+                                    {
+                                        <span class="small font-monospace" title="@record.Branchs._id">@TruncateId(record.Branchs._id)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="small text-muted">@(record.CreateDate?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "N/A")</span>
+                                </td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm @(isSelected ? "btn-primary" : "btn-outline-secondary")" @onclick="() => ToggleDetails(record)">
+                                        @(isSelected ? "Hide" : "Details")
+                                    </button>
+                                </td>
+                            </tr>
+                            @if (isSelected && selectedRecord != null)
+                            {
+                                <tr class="bg-light">
+                                    <td colspan="9" class="p-3">
+                                        <div class="card border">
+                                            <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
+                                                <h6 class="mb-0 fw-bold"><i class="bi bi-card-text me-1"></i>Record Details: @selectedRecord.Description (@selectedRecord.Code)</h6>
+                                                <button type="button" class="btn-close btn-sm" @onclick="() => selectedRecord = null"></button>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <h6 class="text-muted fw-bold">Document Info</h6>
+                                                        <ul class="list-group list-group-flush small">
+                                                            <li class="list-group-item px-0 d-flex justify-content-between"><span class="text-muted">Document ID (_id):</span><span class="font-monospace fw-bold">@selectedRecord._id</span></li>
+                                                            <li class="list-group-item px-0 d-flex justify-content-between"><span class="text-muted">Code:</span><span class="fw-bold">@selectedRecord.Code</span></li>
+                                                            <li class="list-group-item px-0 d-flex justify-content-between"><span class="text-muted">Description:</span><span class="fw-bold">@selectedRecord.Description</span></li>
+                                                            <li class="list-group-item px-0 d-flex justify-content-between"><span class="text-muted">Priority:</span><span class="fw-bold">@selectedRecord.Priority</span></li>
+                                                            <li class="list-group-item px-0 d-flex justify-content-between"><span class="text-muted">IsActive:</span><span>@(selectedRecord.IsActive ? "True" : "False")</span></li>
+                                                            <li class="list-group-item px-0 d-flex justify-content-between"><span class="text-muted">Col0:</span><span>@(selectedRecord.Col0?.ToString() ?? "null")</span></li>
+                                                            <li class="list-group-item px-0 d-flex justify-content-between"><span class="text-muted">CreateDate:</span><span>@(selectedRecord.CreateDate?.ToString("o") ?? "null")</span></li>
+                                                            <li class="list-group-item px-0 d-flex justify-content-between"><span class="text-muted">ModifiedDate:</span><span>@(selectedRecord.ModifiedDate?.ToString("o") ?? "null")</span></li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <h6 class="text-muted fw-bold">Nested Reference Objects</h6>
+                                                        <div class="accordion accordion-flush" id="nestedAccordion">
+                                                            <div class="accordion-item">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button py-2 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#catCollapse">NIMSCategorys: @(selectedRecord.NIMSCategorys?._id ?? "None")</button>
+                                                                </h2>
+                                                                <div id="catCollapse" class="accordion-collapse collapse show">
+                                                                    <div class="accordion-body small py-2">
+                                                                        <div><strong>_id:</strong> <code>@selectedRecord.NIMSCategorys?._id</code></div>
+                                                                        <div><strong>IsActive:</strong> @selectedRecord.NIMSCategorys?.IsActive</div>
+                                                                        <div><strong>CreateDate:</strong> @selectedRecord.NIMSCategorys?.CreateDate?.ToString("o")</div>
+                                                                        <div><strong>ModifiedDate:</strong> @selectedRecord.NIMSCategorys?.ModifiedDate?.ToString("o")</div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="accordion-item">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button py-2 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#typeCollapse">NIMSTypes: @(selectedRecord.NIMSTypes?._id ?? "None")</button>
+                                                                </h2>
+                                                                <div id="typeCollapse" class="accordion-collapse collapse show">
+                                                                    <div class="accordion-body small py-2">
+                                                                        <div><strong>_id:</strong> <code>@selectedRecord.NIMSTypes?._id</code></div>
+                                                                        <div><strong>IsActive:</strong> @selectedRecord.NIMSTypes?.IsActive</div>
+                                                                        <div><strong>CreateDate:</strong> @selectedRecord.NIMSTypes?.CreateDate?.ToString("o")</div>
+                                                                        <div><strong>ModifiedDate:</strong> @selectedRecord.NIMSTypes?.ModifiedDate?.ToString("o")</div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="accordion-item">
+                                                                <h2 class="accordion-header">
+                                                                    <button class="accordion-button py-2 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#branchCollapse">Branchs: @(selectedRecord.Branchs?._id ?? "None")</button>
+                                                                </h2>
+                                                                <div id="branchCollapse" class="accordion-collapse collapse show">
+                                                                    <div class="accordion-body small py-2">
+                                                                        <div><strong>_id:</strong> <code>@selectedRecord.Branchs?._id</code></div>
+                                                                        <div><strong>IsActive:</strong> @selectedRecord.Branchs?.IsActive</div>
+                                                                        <div><strong>CreateDate:</strong> @selectedRecord.Branchs?.CreateDate?.ToString("o")</div>
+                                                                        <div><strong>ModifiedDate:</strong> @selectedRecord.Branchs?.ModifiedDate?.ToString("o")</div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

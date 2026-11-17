@@ -1,0 +1,28 @@
+{
+  "_id": "ObjectId('4d0d4c238b4901a698857538')",
+  "IsActive": true,
+  "CreateDate": "ISODate('2023-02-18T03:09:07.000Z')",
+  "ModifiedDate": "ISODate('2023-02-18T03:09:07.000Z')",
+  "NIMSCategorys": {
+    "_id": "ObjectId('6674b614133de934fd16bda0')",
+    "IsActive": false,
+    "CreateDate": "ISODate('0001-01-01T00:00:00.000Z')",
+    "ModifiedDate": "ISODate('0001-01-01T00:00:00.000Z')"
+  },
+  "Code": "1151",
+  "Description": "Escort",
+  "Col0": null,
+  "Priority": "NumberInt('5')",
+  "NIMSTypes": {
+    "_id": "ObjectId('6674b614133de934fd16bd9e')",
+    "IsActive": false,
+    "CreateDate": "ISODate('0001-01-01T00:00:00.000Z')",
+    "ModifiedDate": "ISODate('0001-01-01T00:00:00.000Z')"
+  },
+  "Branchs": {
+    "_id": "ObjectId('6674b614133de934fd16bd9f')",
+    "IsActive": false,
+    "CreateDate": "ISODate('0001-01-01T00:00:00.000Z')",
+    "ModifiedDate": "ISODate('0001-01-01T00:00:00.000Z')"
+  }
+}
