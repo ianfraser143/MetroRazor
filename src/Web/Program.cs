@@ -1,8 +1,11 @@
 using BlazorApp.Web.Components;
 using BlazorApp.Web.Components.Account;
 using BlazorApp.Web.Data;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +21,9 @@ builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuth
 // MongoDB configuration
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 var mongoClient = new MongoClient(connectionString);
-var mongoDatabase = mongoClient.GetDatabase(builder.Configuration["MongoDb:DatabaseName"] ?? "BlazorApp");
+var mongoDatabase = mongoClient.GetDatabase(builder.Configuration["MongoDb:DatabaseName"] ?? "Incidents");
+//var mongoDatabase = mongoClient.GetDatabase(builder.Configuration["MongoDb:DatabaseName"] ?? "BlazorApp");
+
 builder.Services.AddSingleton(mongoDatabase);
 builder.Services.AddScoped<ApplicationDbContext>();
 
@@ -29,12 +34,13 @@ builder.Services.AddAuthentication(options =>
     })
     .AddIdentityCookies();
 
-// Identity services (in-memory for now, can be extended to MongoDB stores)
+// Identity services
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false; // Simplified for MongoDB migration
         options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
     })
+    .AddUserStore<MongoUserStore>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
