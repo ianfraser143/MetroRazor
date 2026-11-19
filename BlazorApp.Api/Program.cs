@@ -7,6 +7,8 @@ using BlazorApp.Api.Queries;
 using BlazorApp.Web.Data;
 using BlazorApp.Web.Data.Models;
 using LiteBus;
+using Mapster;
+using MapsterMapper;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,7 +17,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddAutoMapper(typeof(NimsProfile));
+
+// Configure Mapster
+var config = TypeAdapterConfig.GlobalSettings;
+config.Scan(typeof(NimsMappingConfig).Assembly);
+builder.Services.AddSingleton(config);
+builder.Services.AddScoped<IMapper, ServiceMapper>();
+
 builder.Services.AddSingleton<ILiteBus, SimpleLiteBus>();
 
 // Register MongoDB + ApplicationDbContext
@@ -41,6 +49,12 @@ builder.Services.AddTransient<IQueryHandler<GetNimsByIdQuery, ApplicationNims?>,
 builder.Services.AddTransient<ICommandHandler<CreateNimsCommand>, CreateNimsCommandHandler>();
 builder.Services.AddTransient<ICommandHandler<UpdateNimsCommand>, UpdateNimsCommandHandler>();
 builder.Services.AddTransient<ICommandHandler<DeleteNimsCommand>, DeleteNimsCommandHandler>();
+
+builder.Services.AddTransient<IQueryHandler<GetAllNoteQuery, List<ApplicationNotes>>, GetAllNoteQueryHandler>();
+builder.Services.AddTransient<IQueryHandler<GetNoteByIdQuery, ApplicationNotes?>, GetNoteByIdQueryHandler>();
+builder.Services.AddTransient<ICommandHandler<CreateNoteCommand>, CreateNoteCommandHandler>();
+builder.Services.AddTransient<ICommandHandler<UpdateNoteCommand>, UpdateNoteCommandHandler>();
+builder.Services.AddTransient<ICommandHandler<DeleteNoteCommand>, DeleteNoteCommandHandler>();
 
 var app = builder.Build();
 

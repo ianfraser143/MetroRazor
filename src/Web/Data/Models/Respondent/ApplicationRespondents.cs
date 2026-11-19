@@ -1,8 +1,22 @@
-﻿namespace BlazorApp.Web.Data.Models
+﻿using BlazorApp.Web.Data.Serializers;
+using MongoDB.Bson.Serialization.Attributes;
+using System.Security.Cryptography;
+
+namespace BlazorApp.Web.Data.Models
 {
     public class ApplicationRespondents
     {
-        public string _id { get; set; }
+        [BsonId]
+        [BsonSerializer(typeof(FlexibleObjectIdSerializer))]
+        public string? _id { get; set; }
+
+
+        [BsonIgnore]
+        public string? Id
+        {
+            get => _id;
+            set => _id = value;
+        }
         public string Name { get; set; }
         public bool IsActive { get; set; }
         public string CreateDate { get; set; }
