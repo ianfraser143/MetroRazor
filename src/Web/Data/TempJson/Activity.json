@@ -1,0 +1,19 @@
+{
+  "_id": "ObjectId('d7d7d95e80fd4f8087fd324a')",
+  "IsActive": true,
+  "CreateDate": "ISODate('2023-02-18T20:46:00.000Z')",
+  "ModifiedDate": "ISODate('2023-02-18T20:46:00.000Z')",
+  "Description": "Civilian reports damage to interior walls and ceilings with possible injuries.",
+  "Agencys": {
+    "_id": "ObjectId('6674b60f133de934fd16bac2')",
+    "IsActive": false,
+    "CreateDate": "ISODate('0001-01-01T00:00:00.000Z')",
+    "ModifiedDate": "ISODate('0001-01-01T00:00:00.000Z')"
+  },
+  "StatusOptions": {
+    "_id": "ObjectId('6674b60f133de934fd16bac3')",
+    "IsActive": false,
+    "CreateDate": "ISODate('0001-01-01T00:00:00.000Z')",
+    "ModifiedDate": "ISODate('0001-01-01T00:00:00.000Z')"
+  }
+}

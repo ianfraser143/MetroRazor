@@ -1,0 +1,238 @@
+﻿@page "/note"
+@rendermode InteractiveServer
+@using BlazorApp.Web.Data
+@using BlazorApp.Web.Data.Models
+@using MongoDB.Driver
+@using BlazorApp.Web.Components.Shared
+@inject ApplicationDbContext DbContext
+
+<PageTitle>Note - NOTE Data</PageTitle>
+
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h2 mb-1">
+                <span class="bi bi-journal-text me-2 text-primary" aria-hidden="true"></span>Notes Data
+            </h1>
+            <p class="text-muted mb-0">
+                Pulling NOTE data directly from MongoDB collection <code>Note</code> via <code>DbContext.Note</code>.
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary" @onclick="LoadDataAsync" disabled="@isLoading">
+                <span class="bi bi-arrow-clockwise me-1" aria-hidden="true"></span>Refresh
+            </button>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(actionMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@actionMessage
+            <button type="button" class="btn-close" @onclick="() => actionMessage = null" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-start">
+                <i class="bi bi-exclamation-triangle-fill fs-5 me-2 text-warning"></i>
+                <div class="flex-grow-1">
+                    <strong>MongoDB Notice:</strong> @errorMessage
+                    <div class="small mt-1 text-muted">
+                        Check your MongoDB connection in <code>appsettings.json</code>. You can click <strong>Refresh</strong> once connected.
+                    </div>
+                </div>
+                <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+
+    @if (isLoading)
+    {
+        <div class="card p-5 text-center shadow-sm">
+            <div class="spinner-border text-primary mx-auto mb-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h5>Loading Note records from MongoDB...</h5>
+            <p class="text-muted mb-0">Connecting to database and querying collection <code>Note</code>.</p>
+        </div>
+    }
+    else if (noteRecords == null || noteRecords.Count == 0)
+    {
+        <div class="card p-5 text-center shadow-sm">
+            <div class="mb-3">
+                <i class="bi bi-inbox text-muted display-4"></i>
+            </div>
+            <h4>No Note records found</h4>
+            <p class="text-muted">The MongoDB collection <code>Note</code> is currently empty or could not be loaded.</p>
+        </div>
+    }
+    else
+    {
+        <!-- Summary Stats Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm bg-light">
+                    <div class="card-body py-2 px-3">
+                        <small class="text-muted text-uppercase fw-semibold">Total Records</small>
+                        <div class="h4 mb-0 fw-bold">@noteRecords.Count</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm bg-light">
+                    <div class="card-body py-2 px-3">
+                        <small class="text-muted text-uppercase fw-semibold">Active</small>
+                        <div class="h4 mb-0 fw-bold text-success">@noteRecords.Count(r => r.IsActive)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm bg-light">
+                    <div class="card-body py-2 px-3">
+                        <small class="text-muted text-uppercase fw-semibold">Inactive</small>
+                        <div class="h4 mb-0 fw-bold text-secondary">@noteRecords.Count(r => !r.IsActive)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm bg-light">
+                    <div class="card-body py-2 px-3">
+                        <small class="text-muted text-uppercase fw-semibold">Filtered Matches</small>
+                        <div class="h4 mb-0 fw-bold text-primary">@FilteredRecords.Count()</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter and Search Bar -->
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body py-2">
+                <div class="row g-2 align-items-center">
+                    <div class="col-12 col-md-7">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="bi bi-search text-muted"></i>
+                            </span>
+                            <input type="text"
+                                   class="form-control border-start-0"
+                                   placeholder="Search by ID, Created Date, or Modified Date..."
+                                   @bind="searchTerm"
+                                   @bind:event="oninput" />
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <select class="form-select" @bind="statusFilter">
+                            <option value="all">All Statuses</option>
+                            <option value="active">Active Only</option>
+                            <option value="inactive">Inactive Only</option>
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-2 text-end">
+                        @if (!string.IsNullOrWhiteSpace(searchTerm) || statusFilter != "all")
+                        {
+                            <button class="btn btn-outline-secondary w-100" @onclick="ResetFilters">
+                                <i class="bi bi-x-circle me-1"></i>Clear
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination (visible when records exist) -->
+        <Pagination TotalItems="FilteredRecords.Count()"
+                    PageSize="PageSize"
+                    CurrentPage="CurrentPage"
+                    OnPageChanged="OnPageChanged" />
+
+        <!-- Records Table -->
+        <div class="card border-0 shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                       @*      <th scope="col" style="width: 250px;">ID (_id)</th> *@
+                            <th scope="col" style="width: 120px;">Status</th>
+                            <th scope="col">Created Date</th>
+                            <th scope="col">Modified Date</th>
+                            <th scope="col" class="text-end" style="width: 110px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var record in PagedRecords)
+                        {
+                            var isSelected = selectedRecord?._id == record._id;
+                            <tr class="@(isSelected ? "table-active" : "")">
+@*                                 <td>
+                                    <span class="font-monospace fw-semibold" title="@record._id">@TruncateId(record._id)</span>
+                                </td> *@
+                                <td>
+                                    @if (record.IsActive)
+                                    {
+                                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary"><i class="bi bi-x-circle me-1"></i>Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="small text-muted">@(record.CreateDate?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "N/A")</span>
+                                </td>
+                                <td>
+                                    <span class="small text-muted">@(record.ModifiedDate?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "N/A")</span>
+                                </td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm @(isSelected ? "btn-primary" : "btn-outline-secondary")" @onclick="() => ToggleDetails(record)">
+                                        @(isSelected ? "Hide" : "Details")
+                                    </button>
+                                </td>
+                            </tr>
+                            @if (isSelected && selectedRecord != null)
+                            {
+                                <tr class="bg-light">
+                                    <td colspan="5" class="p-3">
+                                        <div class="card border">
+                                            <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
+                                  @*               <h6 class="mb-0 fw-bold"><i class="bi bi-card-text me-1"></i>Note Details: @selectedRecord._id</h6> *@
+                                                <button type="button" class="btn-close btn-sm" @onclick="() => selectedRecord = null"></button>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    <div class="col-md-12">
+                                                        <h6 class="text-muted fw-bold">Document Info</h6>
+                                                        <ul class="list-group list-group-flush small">
+@*                                                             <li class="list-group-item px-0 d-flex justify-content-between">
+                                                                <span class="text-muted">Document ID (_id):</span>
+                                                                <span class="font-monospace fw-bold">@selectedRecord._id</span>
+                                                            </li> *@
+                                                            <li class="list-group-item px-0 d-flex justify-content-between">
+                                                                <span class="text-muted">IsActive:</span>
+                                                                <span>@(selectedRecord.IsActive ? "True" : "False")</span>
+                                                            </li>
+                                                            <li class="list-group-item px-0 d-flex justify-content-between">
+                                                                <span class="text-muted">CreateDate:</span>
+                                                                <span>@(selectedRecord.CreateDate?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "null")</span>
+                                                            </li>
+                                                            <li class="list-group-item px-0 d-flex justify-content-between">
+                                                                <span class="text-muted">ModifiedDate:</span>
+                                                                <span>@(selectedRecord.ModifiedDate?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "null")</span>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

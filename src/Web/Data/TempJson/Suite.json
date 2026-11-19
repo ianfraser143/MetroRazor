@@ -1,0 +1,10 @@
+{
+  "_id": "ObjectId('9644de493cda44f5892e2427')",
+  "IsActive": true,
+  "CreateDate": "ISODate('2023-02-18T19:45:00.000Z')",
+  "ModifiedDate": "ISODate('2023-02-18T19:45:00.000Z')",
+  "DisplayName": "202",
+  "SquareFeet": "NA",
+  "Description": "Classroom",
+  "FloorID": "1BC5E6A3C3B849639B92E1BC"
+}

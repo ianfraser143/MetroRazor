@@ -1,5 +1,6 @@
 // Global using statements for BlazorApp.Web
 using BlazorApp.Web.Data;
+using BlazorApp.Web.Data.Models;
 using MongoDB.Driver;
 
 namespace BlazorApp.Web.Components.Pages
@@ -83,36 +84,7 @@ namespace BlazorApp.Web.Components.Pages
             }
         }
 
-        private async Task SeedExampleDataAsync()
-        {
-            try
-            {
-                actionMessage = null;
-                errorMessage = null;
 
-                var existing = await DbContext.Nims.Find(x => x._id == "4d0d4c238b4901a698857602").FirstOrDefaultAsync();
-                if (existing == null)
-                {
-                    var sample = ApplicationDbContext.CreateSampleNims();
-                    await DbContext.Nims.InsertOneAsync(sample);
-                    actionMessage = "Example NIMS record (Code: 1151 - Escort) inserted into MongoDB successfully!";
-                }
-                else
-                {
-                    var sample = ApplicationDbContext.CreateSampleNims();
-                    sample._id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
-                    sample.Description = $"{sample.Description} (Copy)";
-                    await DbContext.Nims.InsertOneAsync(sample);
-                    actionMessage = $"Additional NIMS record inserted with new ID: {sample._id}";
-                }
-
-                await LoadDataAsync();
-            }
-            catch (Exception ex)
-            {
-                errorMessage = $"Failed to insert example record into MongoDB: {ex.Message}";
-            }
-        }
 
         private void ToggleDetails(ApplicationNims record)
         {

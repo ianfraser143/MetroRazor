@@ -1,0 +1,18 @@
+{
+  "_id": "ObjectId('cbfdd5e04da4430b8689febf')",
+  "Name": "SFFD",
+  "IsActive": true,
+  "CreateDate": "ISODate('2023-02-18T18:10:13.477Z')",
+  "ModifiedDate": "ISODate('2023-02-18T18:10:13.477Z')",
+  "Branchs": {
+    "_id": "ObjectId('6674b610133de934fd16bafa')",
+    "IsActive": false,
+    "CreateDate": "ISODate('0001-01-01T00:00:00.000Z')",
+    "ModifiedDate": "ISODate('0001-01-01T00:00:00.000Z')"
+  },
+  "FullName": "San Francisco Fire Department",
+  "Phone": "4153332342",
+  "PrimaryNumber": "4153332742",
+  "Website": "www.sffd.com",
+  "EmailAddres": "support@sffd.com"
+}

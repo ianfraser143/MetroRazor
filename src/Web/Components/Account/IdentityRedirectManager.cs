@@ -1,6 +1,5 @@
-using BlazorApp.Web.Data;
+using BlazorApp.Web.Data.Models;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Identity;
 
 namespace BlazorApp.Web.Components.Account
 {

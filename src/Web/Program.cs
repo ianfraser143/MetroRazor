@@ -1,9 +1,9 @@
 using BlazorApp.Web.Components;
 using BlazorApp.Web.Components.Account;
 using BlazorApp.Web.Data;
+using BlazorApp.Web.Data.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
