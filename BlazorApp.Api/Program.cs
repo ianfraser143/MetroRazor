@@ -1,15 +1,6 @@
 // Program.cs - sets up services and request pipeline for BlazorApp.Api
-using BlazorApp.Api.Bus;
-using BlazorApp.Api.Commands;
-using BlazorApp.Api.Handlers;
-using BlazorApp.Api.MappingProfiles;
-using BlazorApp.Api.Queries;
-using BlazorApp.Web.Data;
-using BlazorApp.Web.Data.Models;
-using LiteBus;
-using Mapster;
-using MapsterMapper;
-using MongoDB.Driver;
+using BlazorApp.Application;
+using BlazorApp.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,21 +9,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configure Mapster
-var config = TypeAdapterConfig.GlobalSettings;
-config.Scan(typeof(NimsMappingConfig).Assembly);
-builder.Services.AddSingleton(config);
-builder.Services.AddScoped<IMapper, ServiceMapper>();
-
-builder.Services.AddSingleton<ILiteBus, SimpleLiteBus>();
-
-// Register MongoDB + ApplicationDbContext
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
-var databaseName = builder.Configuration["MongoDB:DatabaseName"] ?? "Incidents";
-builder.Services.AddSingleton<IMongoClient>(_ => new MongoClient(connectionString));
-builder.Services.AddSingleton<IMongoDatabase>(sp =>
-    sp.GetRequiredService<IMongoClient>().GetDatabase(databaseName));
-builder.Services.AddSingleton<ApplicationDbContext>();
+// Clean Architecture services
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 // Allow the Blazor Web frontend to call this API
 builder.Services.AddCors(options =>
@@ -42,19 +21,6 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowAnyMethod());
 });
-
-// Register CQRS handlers
-builder.Services.AddTransient<IQueryHandler<GetAllNimsQuery, List<ApplicationNims>>, GetAllNimsQueryHandler>();
-builder.Services.AddTransient<IQueryHandler<GetNimsByIdQuery, ApplicationNims?>, GetNimsByIdQueryHandler>();
-builder.Services.AddTransient<ICommandHandler<CreateNimsCommand>, CreateNimsCommandHandler>();
-builder.Services.AddTransient<ICommandHandler<UpdateNimsCommand>, UpdateNimsCommandHandler>();
-builder.Services.AddTransient<ICommandHandler<DeleteNimsCommand>, DeleteNimsCommandHandler>();
-
-builder.Services.AddTransient<IQueryHandler<GetAllNoteQuery, List<ApplicationNotes>>, GetAllNoteQueryHandler>();
-builder.Services.AddTransient<IQueryHandler<GetNoteByIdQuery, ApplicationNotes?>, GetNoteByIdQueryHandler>();
-builder.Services.AddTransient<ICommandHandler<CreateNoteCommand>, CreateNoteCommandHandler>();
-builder.Services.AddTransient<ICommandHandler<UpdateNoteCommand>, UpdateNoteCommandHandler>();
-builder.Services.AddTransient<ICommandHandler<DeleteNoteCommand>, DeleteNoteCommandHandler>();
 
 var app = builder.Build();
 

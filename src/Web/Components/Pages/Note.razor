@@ -2,9 +2,10 @@
 @rendermode InteractiveServer
 @using BlazorApp.Web.Data
 @using BlazorApp.Web.Data.Models
+@using BlazorApp.Application.Common.Interfaces.Services
 @using MongoDB.Driver
 @using BlazorApp.Web.Components.Shared
-@inject ApplicationDbContext DbContext
+@inject INotesService NotesService
 
 <PageTitle>Note - NOTE Data</PageTitle>
 

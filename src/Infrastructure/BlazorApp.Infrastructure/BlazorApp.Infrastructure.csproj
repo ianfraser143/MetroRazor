@@ -1,7 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
   <ItemGroup>
-	<ProjectReference Include="..\..\Domain\BlazorApp.Domain\BlazorApp.Domain.csproj" />
+    <ProjectReference Include="..\..\Domain\BlazorApp.Domain\BlazorApp.Domain.csproj" />
+    <ProjectReference Include="..\..\Application\BlazorApp.Application\BlazorApp.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" Version="3.14.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.14" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="11.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="11.0.0" />
   </ItemGroup>
 
 </Project>

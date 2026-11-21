@@ -1,5 +1,4 @@
 // Global using statements for BlazorApp.Web
-using BlazorApp.Web.Data;
 using BlazorApp.Web.Data.Models;
 using MongoDB.Driver;
 
@@ -7,22 +6,22 @@ namespace BlazorApp.Web.Components.Pages
 {
     public partial class Note
     {
-        private List<ApplicationNotes>? noteRecords;
+        private List<Notes>? noteRecords;
         private bool isLoading = true;
         private string? errorMessage;
         private string? actionMessage;
         private string searchTerm = string.Empty;
         private string statusFilter = "all";
-        private ApplicationNotes? selectedRecord;
+        private Notes? selectedRecord;
 
         private const int PageSize = 10;
         private int CurrentPage = 1;
 
-        private IEnumerable<ApplicationNotes> FilteredRecords
+        private IEnumerable<Notes> FilteredRecords
         {
             get
             {
-                if (noteRecords == null) return Enumerable.Empty<ApplicationNotes>();
+                if (noteRecords == null) return Enumerable.Empty<Notes>();
 
                 return noteRecords.Where(r =>
                 {
@@ -46,7 +45,7 @@ namespace BlazorApp.Web.Components.Pages
             }
         }
 
-        private IEnumerable<ApplicationNotes> PagedRecords =>
+        private IEnumerable<Notes> PagedRecords =>
             FilteredRecords.Skip((CurrentPage - 1) * PageSize).Take(PageSize);
 
         private async Task OnPageChanged(int page)
@@ -68,8 +67,8 @@ namespace BlazorApp.Web.Components.Pages
 
             try
             {
-                // Query using DbContext.Notes (IMongoCollection<ApplicationNotes>)
-                noteRecords = await DbContext.Notes.Find(FilterDefinition<ApplicationNotes>.Empty).ToListAsync();
+                // Query using NotesService
+                noteRecords = NotesService.Get();
             }
             catch (Exception ex)
             {
@@ -81,7 +80,7 @@ namespace BlazorApp.Web.Components.Pages
             }
         }
 
-        private void ToggleDetails(ApplicationNotes record)
+        private void ToggleDetails(Notes record)
         {
             if (selectedRecord?._id == record._id)
             {
@@ -106,3 +105,4 @@ namespace BlazorApp.Web.Components.Pages
         }
     }
 }
+

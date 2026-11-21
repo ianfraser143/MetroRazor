@@ -19,7 +19,7 @@ namespace BlazorApp.Api.Controllers
 
         // GET: api/notes
         [HttpGet]
-        public async Task<ActionResult<List<ApplicationNotes>>> GetAll()
+        public async Task<ActionResult<List<Notes>>> GetAll()
         {
             var result = await _bus.QueryAsync(new GetAllNoteQuery());
             return Ok(result);
@@ -27,7 +27,7 @@ namespace BlazorApp.Api.Controllers
 
         // GET: api/notes/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<ApplicationNotes>> GetById(string id)
+        public async Task<ActionResult<Notes>> GetById(string id)
         {
             var result = await _bus.QueryAsync(new GetNoteByIdQuery(id));
             if (result == null)
@@ -37,7 +37,7 @@ namespace BlazorApp.Api.Controllers
 
         // POST: api/notes
         [HttpPost]
-        public async Task<ActionResult> Create([FromBody] ApplicationNotes notes)
+        public async Task<ActionResult> Create([FromBody] Notes notes)
         {
             await _bus.SendAsync(new CreateNoteCommand(notes));
             return CreatedAtAction(nameof(GetById), new { id = notes.Id }, null);
@@ -45,7 +45,7 @@ namespace BlazorApp.Api.Controllers
 
         // PUT: api/notes/{id}
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(string id, [FromBody] ApplicationNotes notes)
+        public async Task<ActionResult> Update(string id, [FromBody] Notes notes)
         {
             if (id != notes.Id)
                 return BadRequest("Id mismatch");
@@ -62,4 +62,5 @@ namespace BlazorApp.Api.Controllers
         }
     }
 }
+
 

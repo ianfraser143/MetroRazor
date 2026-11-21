@@ -1,9 +1,0 @@
-{
-  "_id": "ObjectId('1ba3821cb93c4352b3a0149f')",
-  "Name": "1",
-  "IsActive": true,
-  "CreateDate": "ISODate('2023-02-18T18:32:58.690Z')",
-  "ModifiedDate": "ISODate('2023-02-18T18:32:58.690Z')",
-  "BuildingID": "2BDCCA605B1046D4BADE0480",
-  "FloorNumber": "NumberInt('1')"
-}

@@ -1,5 +1,4 @@
 // Global using statements for BlazorApp.Web
-using BlazorApp.Web.Data;
 using BlazorApp.Web.Data.Models;
 using MongoDB.Driver;
 
@@ -7,22 +6,22 @@ namespace BlazorApp.Web.Components.Pages
 {
     public partial class Nimz
     {
-        private List<ApplicationNims>? nimsRecords;
+        private List<Nims>? nimsRecords;
         private bool isLoading = true;
         private string? errorMessage;
         private string? actionMessage;
         private string searchTerm = string.Empty;
         private string statusFilter = "all";
-        private ApplicationNims? selectedRecord;
+        private Nims? selectedRecord;
 
         private const int PageSize = 10;
         private int CurrentPage = 1;
 
-        private IEnumerable<ApplicationNims> FilteredRecords
+        private IEnumerable<Nims> FilteredRecords
         {
             get
             {
-                if (nimsRecords == null) return Enumerable.Empty<ApplicationNims>();
+                if (nimsRecords == null) return Enumerable.Empty<Nims>();
 
                 return nimsRecords.Where(r =>
                 {
@@ -50,7 +49,7 @@ namespace BlazorApp.Web.Components.Pages
             }
         }
 
-        private IEnumerable<ApplicationNims> PagedRecords =>
+        private IEnumerable<Nims> PagedRecords =>
             FilteredRecords.Skip((CurrentPage - 1) * PageSize).Take(PageSize);
 
         private async Task OnPageChanged(int page)
@@ -72,7 +71,7 @@ namespace BlazorApp.Web.Components.Pages
 
             try
             {
-                nimsRecords = await DbContext.GetNimsRecordsAsync();
+                nimsRecords = NimsService.Get();
             }
             catch (Exception ex)
             {
@@ -86,7 +85,7 @@ namespace BlazorApp.Web.Components.Pages
 
 
 
-        private void ToggleDetails(ApplicationNims record)
+        private void ToggleDetails(Nims record)
         {
             if (selectedRecord?._id == record._id)
             {
@@ -111,3 +110,4 @@ namespace BlazorApp.Web.Components.Pages
         }
     }
 }
+

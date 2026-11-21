@@ -19,7 +19,7 @@ namespace BlazorApp.Api.Controllers
 
         // GET: api/nims
         [HttpGet]
-        public async Task<ActionResult<List<ApplicationNims>>> GetAll()
+        public async Task<ActionResult<List<Nims>>> GetAll()
         {
             var result = await _bus.QueryAsync(new GetAllNimsQuery());
             return Ok(result);
@@ -27,7 +27,7 @@ namespace BlazorApp.Api.Controllers
 
         // GET: api/nims/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<ApplicationNims>> GetById(string id)
+        public async Task<ActionResult<Nims>> GetById(string id)
         {
             var result = await _bus.QueryAsync(new GetNimsByIdQuery(id));
             if (result == null)
@@ -37,7 +37,7 @@ namespace BlazorApp.Api.Controllers
 
         // POST: api/nims
         [HttpPost]
-        public async Task<ActionResult> Create([FromBody] ApplicationNims nims)
+        public async Task<ActionResult> Create([FromBody] Nims nims)
         {
             await _bus.SendAsync(new CreateNimsCommand(nims));
             return CreatedAtAction(nameof(GetById), new { id = nims._id }, null);
@@ -45,7 +45,7 @@ namespace BlazorApp.Api.Controllers
 
         // PUT: api/nims/{id}
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(string id, [FromBody] ApplicationNims nims)
+        public async Task<ActionResult> Update(string id, [FromBody] Nims nims)
         {
             if (id != nims._id)
                 return BadRequest("Id mismatch");
@@ -62,4 +62,5 @@ namespace BlazorApp.Api.Controllers
         }
     }
 }
+
 

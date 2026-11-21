@@ -1,12 +1,12 @@
+using BlazorApp.Application;
+using BlazorApp.Infrastructure;
 using BlazorApp.Web.Components;
 using BlazorApp.Web.Components.Account;
 using BlazorApp.Web.Data;
 using BlazorApp.Web.Data.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,14 +18,9 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 
-// MongoDB configuration
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-var mongoClient = new MongoClient(connectionString);
-var mongoDatabase = mongoClient.GetDatabase(builder.Configuration["MongoDb:DatabaseName"] ?? "Incidents");
-//var mongoDatabase = mongoClient.GetDatabase(builder.Configuration["MongoDb:DatabaseName"] ?? "BlazorApp");
-
-builder.Services.AddSingleton(mongoDatabase);
-builder.Services.AddScoped<ApplicationDbContext>();
+// Clean Architecture - MongoDB & Persistence via Infrastructure
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddAuthentication(options =>
     {
@@ -49,17 +44,13 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-}
-else
+if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+
 app.UseHttpsRedirection();
 
 app.UseAntiforgery();

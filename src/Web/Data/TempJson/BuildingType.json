@@ -1,7 +1,0 @@
-{
-  "_id": "ObjectId('c838f1244a3e413d852b2a9a')",
-  "Name": "Garage",
-  "IsActive": true,
-  "CreateDate": "ISODate('2023-02-18T18:32:58.630Z')",
-  "ModifiedDate": "ISODate('2023-02-18T18:32:58.630Z')"
-}

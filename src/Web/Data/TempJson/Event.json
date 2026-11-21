@@ -1,9 +1,0 @@
-{
-  "_id": "ObjectId('a5ae9031b9f343bf96782f6a')",
-  "IsActive": true,
-  "CreateDate": "ISODate('2023-02-18T17:28:00.000Z')",
-  "ModifiedDate": "ISODate('2023-02-18T17:28:00.000Z')",
-  "IncidentID": "710A62F284BA43B3BD39342B",
-  "Description": "Report of possible broken arm by falling office equipment.  Victim name Simon Wong, approximately 35 years old, Asian male, no bleeding observed.  Reported by Bob Stansfeld.  Informed that medical assistance in on site and being directed to location.",
-  "Priority": "NumberInt('0')"
-}
