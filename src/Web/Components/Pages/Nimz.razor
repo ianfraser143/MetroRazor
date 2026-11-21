@@ -1,9 +1,10 @@
 ﻿@page "/nimz"
 @rendermode InteractiveServer
 @using BlazorApp.Web.Data
+@using BlazorApp.Application.Common.Interfaces.Services
 @using MongoDB.Driver
 @using BlazorApp.Web.Components.Shared
-@inject ApplicationDbContext DbContext
+@inject INimsService NimsService
 
 <PageTitle>Nimz - NIMS Data</PageTitle>
 
@@ -21,9 +22,9 @@
             <button class="btn btn-outline-primary" @onclick="LoadDataAsync" disabled="@isLoading">
                 <span class="bi bi-arrow-clockwise me-1" aria-hidden="true"></span>Refresh
             </button>
-            <button class="btn btn-success" @onclick="SeedExampleDataAsync" disabled="@isLoading">
+@*             <button class="btn btn-success" @onclick="SeedExampleDataAsync" disabled="@isLoading">
                 <span class="bi bi-database-add me-1" aria-hidden="true"></span>Insert Example Record
-            </button>
+            </button> *@
         </div>
     </div>
 
@@ -69,11 +70,11 @@
             </div>
             <h4>No NIMS records found</h4>
             <p class="text-muted">The MongoDB collection <code>NIMS</code> is currently empty or could not be loaded.</p>
-            <div class="mt-2">
+@*             <div class="mt-2">
                 <button class="btn btn-primary" @onclick="SeedExampleDataAsync">
                     <i class="bi bi-plus-circle me-1"></i>Insert Example NIMS Record (Code 1151 - Escort)
                 </button>
-            </div>
+            </div> *@
         </div>
     }
     else

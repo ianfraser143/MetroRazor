@@ -1,8 +1,66 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
 
   <ItemGroup>
-	<ProjectReference Include="..\..\Domain\BlazorApp.Domain\BlazorApp.Domain.csproj" />
-	<ProjectReference Include="..\..\Infrastructure\BlazorApp.Infrastructure\BlazorApp.Infrastructure.csproj" />
+    <Compile Remove="Commands\NewFolder - Copy %2810%29\**" />
+    <Compile Remove="Commands\NewFolder - Copy %2811%29\**" />
+    <Compile Remove="Commands\NewFolder - Copy %2812%29\**" />
+    <Compile Remove="Commands\NewFolder - Copy %2813%29\**" />
+    <Compile Remove="Commands\NewFolder - Copy %2814%29\**" />
+    <Compile Remove="Commands\NewFolder - Copy %282%29\**" />
+    <Compile Remove="Commands\NewFolder - Copy %283%29\**" />
+    <Compile Remove="Commands\NewFolder - Copy %284%29\**" />
+    <Compile Remove="Commands\NewFolder - Copy %285%29\**" />
+    <Compile Remove="Commands\NewFolder - Copy %286%29\**" />
+    <Compile Remove="Commands\NewFolder - Copy %287%29\**" />
+    <Compile Remove="Commands\NewFolder - Copy %288%29\**" />
+    <Compile Remove="Commands\NewFolder - Copy %289%29\**" />
+    <Compile Remove="Commands\NewFolder - Copy\**" />
+    <EmbeddedResource Remove="Commands\NewFolder - Copy %2810%29\**" />
+    <EmbeddedResource Remove="Commands\NewFolder - Copy %2811%29\**" />
+    <EmbeddedResource Remove="Commands\NewFolder - Copy %2812%29\**" />
+    <EmbeddedResource Remove="Commands\NewFolder - Copy %2813%29\**" />
+    <EmbeddedResource Remove="Commands\NewFolder - Copy %2814%29\**" />
+    <EmbeddedResource Remove="Commands\NewFolder - Copy %282%29\**" />
+    <EmbeddedResource Remove="Commands\NewFolder - Copy %283%29\**" />
+    <EmbeddedResource Remove="Commands\NewFolder - Copy %284%29\**" />
+    <EmbeddedResource Remove="Commands\NewFolder - Copy %285%29\**" />
+    <EmbeddedResource Remove="Commands\NewFolder - Copy %286%29\**" />
+    <EmbeddedResource Remove="Commands\NewFolder - Copy %287%29\**" />
+    <EmbeddedResource Remove="Commands\NewFolder - Copy %288%29\**" />
+    <EmbeddedResource Remove="Commands\NewFolder - Copy %289%29\**" />
+    <EmbeddedResource Remove="Commands\NewFolder - Copy\**" />
+    <None Remove="Commands\NewFolder - Copy %2810%29\**" />
+    <None Remove="Commands\NewFolder - Copy %2811%29\**" />
+    <None Remove="Commands\NewFolder - Copy %2812%29\**" />
+    <None Remove="Commands\NewFolder - Copy %2813%29\**" />
+    <None Remove="Commands\NewFolder - Copy %2814%29\**" />
+    <None Remove="Commands\NewFolder - Copy %282%29\**" />
+    <None Remove="Commands\NewFolder - Copy %283%29\**" />
+    <None Remove="Commands\NewFolder - Copy %284%29\**" />
+    <None Remove="Commands\NewFolder - Copy %285%29\**" />
+    <None Remove="Commands\NewFolder - Copy %286%29\**" />
+    <None Remove="Commands\NewFolder - Copy %287%29\**" />
+    <None Remove="Commands\NewFolder - Copy %288%29\**" />
+    <None Remove="Commands\NewFolder - Copy %289%29\**" />
+    <None Remove="Commands\NewFolder - Copy\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Domain\BlazorApp.Domain\BlazorApp.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LiteBus" Version="7.2.0" />
+    <PackageReference Include="Mapster" Version="10.0.14" />
+    <PackageReference Include="Mapster.DependencyInjection" Version="10.0.14" />
+    <PackageReference Include="MongoDB.Driver" Version="3.14.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="11.0.0" />
   </ItemGroup>
 
 </Project>

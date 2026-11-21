@@ -1,10 +1,10 @@
-using BlazorApp.Web.Data;
+using BlazorApp.Web.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using MongoDB.Driver;
 
 namespace BlazorApp.Web.Data;
 
-public sealed class MongoUserStore : IUserPasswordStore<ApplicationUser>, IUserEmailStore<ApplicationUser>, IUserPhoneNumberStore<ApplicationUser>, IUserSecurityStampStore<ApplicationUser>, IUserLockoutStore<ApplicationUser>, IUserTwoFactorStore<ApplicationUser>, IUserLoginStore<ApplicationUser>, IUserAuthenticationTokenStore<ApplicationUser>, IUserAuthenticatorKeyStore<ApplicationUser>, IUserTwoFactorRecoveryCodeStore<ApplicationUser>, IUserPasskeyStore<ApplicationUser>
+public sealed partial class MongoUserStore : IUserPasswordStore<ApplicationUser>, IUserEmailStore<ApplicationUser>, IUserPhoneNumberStore<ApplicationUser>, IUserSecurityStampStore<ApplicationUser>, IUserLockoutStore<ApplicationUser>, IUserTwoFactorStore<ApplicationUser>, IUserLoginStore<ApplicationUser>, IUserAuthenticationTokenStore<ApplicationUser>, IUserAuthenticatorKeyStore<ApplicationUser>, IUserTwoFactorRecoveryCodeStore<ApplicationUser>, IUserPasskeyStore<ApplicationUser>
 {
     private readonly ApplicationDbContext _context;
 

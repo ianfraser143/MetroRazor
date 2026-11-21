@@ -7,11 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" Version="3.14.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Application\BlazorApp.Application\BlazorApp.Application.csproj" />
+    <ProjectReference Include="..\Infrastructure\BlazorApp.Infrastructure\BlazorApp.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
